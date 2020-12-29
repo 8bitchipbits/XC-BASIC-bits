@@ -3,21 +3,23 @@ rem Character colouring method : Per-Character.
 
 rem Colour values...
 
-COLR_SCREEN = 8
-COLR_CHAR_DEF = 11
-COLR_CHAR_MC1 = 0
-COLR_CHAR_MC2 = 1
+COLR_SCREEN = 5
+COLR_CHAR_DEF = 10
+COLR_CHAR_MC1 = 15
+COLR_CHAR_MC2 = 9
+
 
 rem Quantities and dimensions...
 
-CHAR_COUNT = 256
+CHAR_COUNT = 75
 MAP_WID = 40
 MAP_HEI = 25
 
+
 rem Data block sizes (in bytes)...
 
-SZ_CHARSET_DATA        = 2048
-SZ_CHARSET_ATTRIB_DATA = 256
+SZ_CHARSET_DATA        = 1000
+SZ_CHARSET_ATTRIB_DATA = 75
 SZ_MAP_DATA            = 1000
 
 rem Data block addresses (dummy values)...
