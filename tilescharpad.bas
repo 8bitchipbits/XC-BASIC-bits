@@ -8,40 +8,40 @@ rem ; Character colouring method : Per-Map.
 
 rem ; Colour values...
 
-COLR_SCREEN = 0
-COLR_CHAR_DEF = 14
-COLR_CHAR_MC1 = 12
-COLR_CHAR_MC2 = 9
+const COLR_SCREEN = 0
+const COLR_CHAR_DEF = 14
+const COLR_CHAR_MC1 = 12
+const COLR_CHAR_MC2 = 9
 
 
 rem ; Quantities and dimensions...
 
-CHAR_COUNT = 130
-TILE_COUNT = 83
-TILE_WID = 2
-TILE_HEI = 2
-MAP_WID = 100
-MAP_HEI = 24
-MAP_WID_CHRS = 200
-MAP_HEI_CHRS = 48
-MAP_WID_PXLS = 1600
-MAP_HEI_PXLS = 384
+const CHAR_COUNT = 130
+const TILE_COUNT = 83
+const TILE_WID = 2
+const TILE_HEI = 2
+const MAP_WID = 100
+const MAP_HEI = 24
+const MAP_WID_CHRS = 200
+const MAP_HEI_CHRS = 48
+const MAP_WID_PXLS = 1600
+const MAP_HEI_PXLS = 384
 
 
 rem ; Data block sizes (in bytes)...
 
-SZ_CHARSET_DATA        = 1040
-SZ_CHARSET_ATTRIB_DATA = 130
-SZ_TILESET_DATA        = 332
-SZ_MAP_DATA            = 2400
+const SZ_CHARSET_DATA        = 1040
+const SZ_CHARSET_ATTRIB_DATA = 130
+const SZ_TILESET_DATA        = 332
+const SZ_MAP_DATA            = 2400
 
 
 rem ; Data block addresses (dummy values)...
 
-ADDR_CHARSET_DATA = $2000            ; block size = $0410, label = 'charset_data'.
-ADDR_CHARSET_ATTRIB_DATA = $2800     ; block size = $0082, label = 'charset_attrib_data'.
-ADDR_CHARTILESET_DATA = $3000        ; block size = $014c, label = 'chartileset_data'.
-ADDR_MAP_DATA = $5000                ; block size = $0960, label = 'map_data'.
+const ADDR_CHARSET_DATA = $2000            ; block size = $0410, label = 'charset_data'.
+const ADDR_CHARSET_ATTRIB_DATA = $2800     ; block size = $0082, label = 'charset_attrib_data'.
+const ADDR_CHARTILESET_DATA = $3000        ; block size = $014c, label = 'chartileset_data'.
+const ADDR_MAP_DATA = $5000                ; block size = $0960, label = 'map_data'.
 
 TILE_DATA_LEN = TILE_WID * TILE_HEI
 const debug = 0
@@ -61,28 +61,34 @@ rem memcpy ADDR_MAP_DATA,$0400,SZ_CHARSET_DATA
 tile = 0
 starty = 0
 startx = 10
-
 xoffset = 0
 yoffset = 0
 pagex = 40
 pagey = pagex * TILE_HEI
 rows = 12
 columns = 20
-y = starty
+
 rem find nth tile by size of tile
 rem print "----"
 rem first block should be 0E mapped to 1B 1C 00 00
+dim h fast
+dim w fast
+dim x fast
+dim y fast
+
+y = starty
+disableirq
 repeat rem rows
 	x = startx
 	xoffset = 0
 	repeat rem columns
-		tile = peek(ADDR_MAP_DATA + x + (y * MAP_WID)) * TILE_DATA_LEN
-
+		tile = ADDR_CHARTILESET_DATA + peek(ADDR_MAP_DATA + x + (y * MAP_WID)) * TILE_DATA_LEN
 		counter = 0
-		offsets = xoffset + yoffset
+		offsets = xoffset + yoffset + $0400
 		for h = 0 to TILE_HEI - 1
+			offsets = offsets + (h * pagex)
 			for w = 0 to TILE_WID - 1		
-				poke $0400 + offsets + w + (h * pagex) , peek!(ADDR_CHARTILESET_DATA + tile + counter)
+				poke offsets + w , peek!(tile + counter)
 				inc counter
 			next
 		next
@@ -101,6 +107,7 @@ if debug = 0 then
 		inc i
 	until i = 1000 + $0400
 endif
+enableirq
 loop:
 goto loop
 
