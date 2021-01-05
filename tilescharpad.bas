@@ -43,9 +43,12 @@ const ADDR_CHARSET_ATTRIB_DATA = $2800     ; block size = $0082, label = 'charse
 const ADDR_CHARTILESET_DATA = $3000        ; block size = $014c, label = 'chartileset_data'.
 const ADDR_MAP_DATA = $5000                ; block size = $0960, label = 'map_data'.
 
-TILE_DATA_LEN = TILE_WID * TILE_HEI
-const debug = 0
 rem * INSERT EXAMPLE PROGRAM HERE! * (Or just include this file in your project).
+
+TILE_DATA_LEN = TILE_WID * TILE_HEI
+
+const debug = 0
+
 if debug = 0 then
 	poke $DD00,peek($dd00) & %11111100 | %00000011 : rem bank 0
 	poke $D016,peek($D016) | %00010000 : rem multi color char mode
@@ -56,17 +59,21 @@ if debug = 0 then
 	poke $D023,COLR_CHAR_MC2
 	poke $D024,COLR_CHAR_DEF
 endif
+
 rem For tiles, map is only a reference to tile. Then tile is a reference to characters.
+
 rem memcpy ADDR_MAP_DATA,$0400,SZ_CHARSET_DATA
+
 tile = 0
-starty = 0
-startx = 10
+const starty = 0
+startx = 0
+loop:
 xoffset = 0
 yoffset = 0
-pagex = 40
+const pagex = 40
 pagey = pagex * TILE_HEI
-rows = 12
-columns = 20
+const rows = 12
+const columns = 20
 
 rem find nth tile by size of tile
 rem print "----"
@@ -89,6 +96,7 @@ repeat rem rows
 			offsets = offsets + (h * pagex)
 			for w = 0 to TILE_WID - 1		
 				poke offsets + w , peek!(tile + counter)
+				poke $d400 + offsets + w, peek(ADDR_CHARSET_ATTRIB_DATA + peek(offsets + w))
 				inc counter
 			next
 		next
@@ -99,18 +107,12 @@ repeat rem rows
 	inc y
 until y >= rows + starty
 
-rem paint correct colors per char
-if debug = 0 then
-	i = $0400
-	repeat
-		poke $d400 + i, peek(ADDR_CHARSET_ATTRIB_DATA + peek(i))
-		inc i
-	until i = 1000 + $0400
-endif
 enableirq
-loop:
-goto loop
 
+inc startx
+if startx < 60 then goto loop
+pause:
+goto pause
 rem CHARSET IMAGE DATA...
 rem 256 images, 8 bytes per image, total size is 2048 ($800) bytes.
 
